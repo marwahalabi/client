@@ -486,7 +486,8 @@ int csync_statedb_get_below_path( CSYNC *ctx, const char *path ) {
             }
 
             /* store into result list. */
-            if (c_rbtree_insert(ctx->remote.tree, (void *) st.release()) < 0) {
+            auto tree = ctx->current == LOCAL_REPLICA ? ctx->local.tree : ctx->remote.tree;
+            if (c_rbtree_insert(tree, (void *) st.release()) < 0) {
                 st.reset();
                 ctx->status_code = CSYNC_STATUS_TREE_ERROR;
                 break;

@@ -36,6 +36,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 #include <sqlite3.h>
+#include <QList>
+#include <QString>
 
 #include "config_csync.h"
 #include "std/c_lib.h"
@@ -139,6 +141,9 @@ struct OCSYNC_EXPORT csync_s {
    * Specify if it is allowed to read the remote tree from the DB (default to enabled)
    */
   bool read_remote_from_db = false;
+
+  bool read_local_from_db = false;
+  QList<QString> locally_touched_files;
 
   /**
    * If true, the DB is considered empty and all reads are skipped. (default is false)

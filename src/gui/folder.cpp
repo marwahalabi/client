@@ -453,7 +453,6 @@ void Folder::slotWatchedPathChanged(const QString &path)
 // and log. Therefore we check notifications against operations
 // the sync is doing to filter out our own changes.
 #ifdef Q_OS_MAC
-    Q_UNUSED(path)
 // On OSX the folder watcher does not report changes done by our
 // own process. Therefore nothing needs to be done here!
 #else
@@ -464,14 +463,17 @@ void Folder::slotWatchedPathChanged(const QString &path)
     }
 #endif
 
-    // Check that the mtime actually changed.
     if (path.startsWith(this->path())) {
         auto relativePath = path.mid(this->path().size());
+
+        // Check that the mtime actually changed.
         auto record = _journal.getFileRecord(relativePath);
         if (record.isValid() && !FileSystem::fileChanged(path, record._fileSize, Utility::qDateTimeToTime_t(record._modtime))) {
             qCInfo(lcFolder) << "Ignoring spurious notification for file" << relativePath;
             return; // probably a spurious notification
         }
+
+        _engine->_locallyModifiedFiles.append(relativePath);
     }
 
     emit watchedFileChangedExternally(path);

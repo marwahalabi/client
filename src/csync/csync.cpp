@@ -436,6 +436,9 @@ int csync_s::reinitialize() {
   read_remote_from_db = true;
   db_is_empty = false;
 
+  read_local_from_db = false;
+  locally_touched_files.clear();
+
   /* Create new trees */
   c_rbtree_create(&local.tree, _key_cmp, _data_cmp);
   c_rbtree_create(&remote.tree, _key_cmp, _data_cmp);

@@ -812,6 +812,14 @@ void SyncEngine::startSync()
     }
 
     _csync_ctx->read_remote_from_db = true;
+    if (!_locallyModifiedFiles.isEmpty()) {
+        _csync_ctx->read_local_from_db = true;
+        _csync_ctx->locally_touched_files = _locallyModifiedFiles;
+        _locallyModifiedFiles.clear();
+
+        qSort(_csync_ctx->locally_touched_files);
+        qDebug() << "XXX LOCAL:" << _csync_ctx->locally_touched_files;
+    }
 
     // This tells csync to never read from the DB if it is empty
     // thereby speeding up the initial discovery significantly.

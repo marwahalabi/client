@@ -99,6 +99,8 @@ public:
      */
     static qint64 minimumFileAgeForUpload; // in ms
 
+    QList<QString> _locallyModifiedFiles;
+
 signals:
     void csyncUnavailable();
 

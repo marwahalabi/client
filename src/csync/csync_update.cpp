@@ -30,6 +30,7 @@
 #include <string.h>
 #include <time.h>
 #include <math.h>
+#include <QDebug>
 
 #include "c_lib.h"
 #include "c_jhash.h"
@@ -563,6 +564,26 @@ int csync_ftw(CSYNC *ctx, const char *uri, csync_walker_fn fn,
   int res = 0;
 
   bool do_read_from_db = (ctx->current == REMOTE_REPLICA && ctx->remote.read_from_db);
+  const char *db_uri = uri;
+
+  if (ctx->current == LOCAL_REPLICA && ctx->read_local_from_db) {
+      const char *local_uri = uri + strlen(ctx->local.uri);
+      if (*local_uri == '/')
+          ++local_uri;
+      db_uri = local_uri;
+      bool relevantSubtree = false;
+      // could use lower_bound
+      for (const QString &relPath : ctx->locally_touched_files) {
+          if (relPath.startsWith(local_uri)) {
+              relevantSubtree = true;
+              break;
+          }
+      }
+      do_read_from_db = !relevantSubtree;
+      if (do_read_from_db) {
+          qDebug() << "ZZZ reading" << local_uri << "from database";
+      }
+  }
 
   if (!depth) {
     mark_current_item_ignored(ctx, previous_fs, CSYNC_STATUS_INDIVIDUAL_TOO_DEEP);
@@ -574,7 +595,7 @@ int csync_ftw(CSYNC *ctx, const char *uri, csync_walker_fn fn,
   // if the etag of this dir is still the same, its content is restored from the
   // database.
   if( do_read_from_db ) {
-      if( ! fill_tree_from_db(ctx, uri) ) {
+      if( ! fill_tree_from_db(ctx, db_uri) ) {
         errno = ENOENT;
         ctx->status_code = CSYNC_STATUS_OPENDIR_ERROR;
         goto error;
