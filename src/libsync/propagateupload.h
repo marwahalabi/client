@@ -320,6 +320,10 @@ private:
 public:
     PropagateUploadFileV1(OwncloudPropagator *propagator, const SyncFileItemPtr &item)
         : PropagateUploadFileCommon(propagator, item)
+        , _startChunk(0)
+        , _currentChunk(0)
+        , _chunkCount(0)
+        , _transferId(0)
     {
     }
 
@@ -366,7 +370,11 @@ private:
 public:
     PropagateUploadFileNG(OwncloudPropagator *propagator, const SyncFileItemPtr &item)
         : PropagateUploadFileCommon(propagator, item)
+        , _sent(0)
+        , _transferId(0)
+        , _currentChunk(0)
         , _currentChunkSize(0)
+        , _removeJobError(false)
     {
     }
 
