@@ -109,11 +109,15 @@ struct OCSYNC_EXPORT csync_s {
 
   c_strlist_t *excludes = nullptr; /* list of individual patterns collected from all exclude files */
   struct TraversalExcludes {
+      ~TraversalExcludes() {
+          c_strlist_destroy(list_patterns_with_slashes);
+      }
       void prepare(c_strlist_t *excludes);
 
       QRegularExpression regexp_exclude;
       c_strlist_t *list_patterns_with_slashes = nullptr;
       /* FIXME ^^ at a later point use QRegularExpression too if those become popular */
+
   } parsed_traversal_excludes;
 
   struct {
